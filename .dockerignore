@@ -1,0 +1,46 @@
+# Dependencies (copy production node_modules for Docker build)
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Development files (keep src/ and tsconfig.json for Docker build)
+*.md
+.env*
+.vscode/
+.devcontainer/
+.github/
+docs/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# ESLint and Prettier (keep tsconfig.json for build)
+.eslintrc*
+.prettierrc*
+.prettierignore
+eslint.config.mjs
+
+# Jest (keep for tests in Docker build)
+jest.config.*
+test/
+scripts/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Build artifacts that shouldn't be in container
+dist/test/
+coverage/
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# IDE files
+*.swp
+*.swo
+*~

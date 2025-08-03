@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: azure-devops-mcp-containerapp
+  annotations:
+    description: "Azure DevOps MCP Server for Azure Container Apps"
+parameters:
+  - name: CONTAINER_APP_NAME
+    description: "Name of the Container App"
+    value: "azure-devops-mcp"
+  - name: ADO_ORGANIZATION
+    description: "Azure DevOps organization name"
+    required: true
+  - name: AZURE_CLIENT_ID
+    description: "Azure Client ID for managed identity (optional)"
+    value: ""
+  - name: ADO_TENANT_ID
+    description: "Azure Tenant ID (optional)"
+    value: ""
+  - name: ALLOWED_ORIGINS
+    description: "Comma-separated list of allowed origins for CORS"
+    value: "*"
+  - name: CONTAINER_IMAGE
+    description: "Container image to deploy"
+    value: "your-registry.azurecr.io/azure-devops-mcp:latest"
+
+objects:
+  - apiVersion: app.platform.azure.com/v1beta1
+    kind: ContainerApp
+    metadata:
+      name: ${CONTAINER_APP_NAME}
+    spec:
+      environmentId: /subscriptions/{subscription-id}/resourceGroups/{resource-group}/providers/Microsoft.App/managedEnvironments/{environment-name}
+      configuration:
+        activeRevisionsMode: Single
+        ingress:
+          external: true
+          targetPort: 3000
+          allowInsecure: false
+        secrets: []
+        registries: []
+      template:
+        containers:
+          - name: azure-devops-mcp
+            image: ${CONTAINER_IMAGE}
+            env:
+              - name: ADO_ORGANIZATION
+                value: ${ADO_ORGANIZATION}
+              - name: AZURE_CLIENT_ID
+                value: ${AZURE_CLIENT_ID}
+              - name: ADO_TENANT_ID
+                value: ${ADO_TENANT_ID}
+              - name: MCP_HTTP_MODE
+                value: "true"
+              - name: PORT
+                value: "3000"
+              - name: ALLOWED_ORIGINS
+                value: ${ALLOWED_ORIGINS}
+              - name: NODE_ENV
+                value: "production"
+            resources:
+              cpu: 0.5
+              memory: 1Gi
+            probes:
+              - type: Liveness
+                httpGet:
+                  path: /health
+                  port: 3000
+                initialDelaySeconds: 10
+                periodSeconds: 30
+              - type: Readiness
+                httpGet:
+                  path: /health
+                  port: 3000
+                initialDelaySeconds: 5
+                periodSeconds: 10
+        scale:
+          minReplicas: 1
+          maxReplicas: 10
+          rules:
+            - name: http-rule
+              http:
+                metadata:
+                  concurrentRequests: "30"

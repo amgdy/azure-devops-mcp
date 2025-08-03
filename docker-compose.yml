@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  azure-devops-mcp:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - ADO_ORGANIZATION=${ADO_ORGANIZATION:-contoso}
+      - ADO_TENANT_ID=${ADO_TENANT_ID}
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
+      - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
+      - AZURE_TENANT_ID=${AZURE_TENANT_ID}
+      - MCP_HTTP_MODE=true
+      - PORT=3000
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-*}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS}
+      - ENABLE_DNS_REBINDING_PROTECTION=${ENABLE_DNS_REBINDING_PROTECTION:-false}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

@@ -5,7 +5,7 @@ Easily install the Azure DevOps MCP Server for VS Code or VS Code Insiders:
 [![Install with NPX in VS Code](https://img.shields.io/badge/VS_Code-Install_AzureDevops_MCP_Server-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=ado&config=%7B%20%22type%22%3A%20%22stdio%22%2C%20%22command%22%3A%20%22npx%22%2C%20%22args%22%3A%20%5B%22-y%22%2C%20%22%40azure-devops%2Fmcp%22%2C%20%22%24%7Binput%3Aado_org%7D%22%5D%7D&inputs=%5B%7B%22id%22%3A%20%22ado_org%22%2C%20%22type%22%3A%20%22promptString%22%2C%20%22description%22%3A%20%22Azure%20DevOps%20organization%20name%20%20%28e.g.%20%27contoso%27%29%22%7D%5D)
 [![Install with NPX in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-Install_AzureDevops_MCP_Server-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=ado&quality=insiders&config=%7B%20%22type%22%3A%20%22stdio%22%2C%20%22command%22%3A%20%22npx%22%2C%20%22args%22%3A%20%5B%22-y%22%2C%20%22%40azure-devops%2Fmcp%22%2C%20%22%24%7Binput%3Aado_org%7D%22%5D%7D&inputs=%5B%7B%22id%22%3A%20%22ado_org%22%2C%20%22type%22%3A%20%22promptString%22%2C%20%22description%22%3A%20%22Azure%20DevOps%20organization%20name%20%20%28e.g.%20%27contoso%27%29%22%7D%5D)
 
-This TypeScript project provides a **local** MCP server for Azure DevOps, enabling you to perform a wide range of Azure DevOps tasks directly from your code editor.
+This TypeScript project provides both **local** and **remote** MCP server capabilities for Azure DevOps, enabling you to perform a wide range of Azure DevOps tasks directly from your code editor or through HTTP endpoints.
 
 > 🚨 **Public Preview:** This project is in public preview. Tools and features may change before general availability.
 
@@ -15,14 +15,23 @@ This TypeScript project provides a **local** MCP server for Azure DevOps, enabli
 2. [🏆 Expectations](#-expectations)
 3. [⚙️ Supported Tools](#️-supported-tools)
 4. [🔌 Installation & Getting Started](#-installation--getting-started)
-5. [📝 Troubleshooting](#-troubleshooting)
+5. [🌐 Cloud Deployment](#-cloud-deployment)
+6. [📝 Troubleshooting](#-troubleshooting)
 6. [🎩 Examples & Best Practices](#-samples--best-practices)
 7. [🙋‍♀️ Frequently Asked Questions](#️-frequently-asked-questions)
 8. [📌 Contributing](#-contributing)
 
 ## 📺 Overview
 
-The Azure DevOps MCP Server brings Azure DevOps context to your agents. Try prompts like:
+The Azure DevOps MCP Server brings Azure DevOps context to your agents in two modes:
+
+### 🖥️ Local Mode (STDIO Transport)
+Perfect for VS Code, Claude Desktop, and other local MCP clients.
+
+### 🌐 Remote Mode (HTTP Transport) 
+Ideal for cloud deployments on Azure Container Apps, Azure App Service, or any container platform.
+
+Try prompts like:
 
 - "List my ADO projects"
 - "List ADO Builds for 'Contoso'"
@@ -211,6 +220,67 @@ Open GitHub Copilot Chat and try a prompt like `List ADO projects`.
 > 💥 We strongly recommend creating a `.github\copilot-instructions.md` in your project and copying the contents from this [copilot-instructions.md](./.github/copilot-instructions.md) file. This will enhance your experience using the Azure DevOps MCP Server with GitHub Copilot Chat.
 
 See the [getting started documentation](./docs/GETTINGSTARTED.md) to use our MCP Server with other tools such as Visual Studio 2022, Claude Code, and Cursor.
+
+## 🌐 Cloud Deployment
+
+Deploy the Azure DevOps MCP Server as a remote HTTP service to Azure Container Apps for multi-client access.
+
+### 🚀 Quick Deploy to Azure
+
+Use the automated deployment script:
+
+```bash
+# Clone the repository
+git clone https://github.com/amgdy/azure-devops-mcp.git
+cd azure-devops-mcp
+
+# Deploy to Azure Container Apps
+./scripts/deploy-azure.sh \
+  --resource-group "rg-azuredevops-mcp" \
+  --organization "your-ado-organization" \
+  --subscription "your-subscription-id"
+```
+
+### 🐳 Docker Deployment
+
+The server is also available as a container image:
+
+```bash
+# Pull and run the latest image
+docker run -p 3000:3000 \
+  -e ADO_ORGANIZATION=your-org \
+  -e MCP_HTTP_MODE=true \
+  ghcr.io/amgdy/azure-devops-mcp:latest
+```
+
+### 📋 Infrastructure as Code
+
+Deploy using the provided Bicep templates:
+
+```bash
+# Deploy infrastructure
+az deployment group create \
+  --resource-group "rg-azuredevops-mcp" \
+  --template-file infra/main.bicep \
+  --parameters adoOrganization="your-org"
+```
+
+### 🔗 Remote Client Configuration
+
+Connect to your deployed MCP server:
+
+```json
+{
+  "servers": {
+    "ado-remote": {
+      "type": "sse",
+      "url": "https://your-container-app.azurecontainerapps.io/mcp"
+    }
+  }
+}
+```
+
+For detailed deployment instructions, see the [Deployment Guide](./docs/deployment.md).
 
 ## 📝 Troubleshooting
 
