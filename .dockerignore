@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Source files (only dist should be included)
+src/
+test/
+scripts/
+
+# Development files
+*.md
+.env*
+.vscode/
+.devcontainer/
+.github/
+docs/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# TypeScript
+tsconfig.json
+*.tsbuildinfo
+
+# ESLint and Prettier
+.eslintrc*
+.prettierrc*
+.prettierignore
+eslint.config.mjs
+
+# Jest
+jest.config.*
+
+# Build artifacts that shouldn't be in container
+dist/test/
+coverage/
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# IDE files
+*.swp
+*.swo
+*~
