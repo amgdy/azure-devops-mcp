@@ -8,16 +8,15 @@ WORKDIR /app
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S mcpserver -u 1001
 
-# Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init
+# No additional packages needed - Node.js handles signals properly
 
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Install only production dependencies
+RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 
-# Copy source code
+# Copy pre-built source code
 COPY dist/ ./dist/
 
 # Change ownership to non-root user
@@ -36,8 +35,8 @@ ENV NODE_ENV=production
 ENV PORT=3000
 ENV MCP_HTTP_MODE=true
 
-# Use dumb-init to handle signals properly
-ENTRYPOINT ["dumb-init", "--"]
+# Node.js handles signals properly without additional tools
+ENTRYPOINT ["node", "dist/index.js"]
 
 # Start the HTTP server - organization must be provided via ADO_ORGANIZATION environment variable
-CMD ["sh", "-c", "node dist/index.js \"${ADO_ORGANIZATION:-contoso}\" --http"]
+CMD ["${ADO_ORGANIZATION:-contoso}", "--http"]
