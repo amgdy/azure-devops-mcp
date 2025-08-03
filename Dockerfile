@@ -1,5 +1,5 @@
-# Use Node.js 20 Alpine as base image for smaller size
-FROM node:20-alpine
+# Production stage
+FROM node:20-alpine AS production
 
 # Set working directory
 WORKDIR /app
@@ -8,16 +8,16 @@ WORKDIR /app
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S mcpserver -u 1001
 
-# No additional packages needed - Node.js handles signals properly
-
 # Copy package files
 COPY package*.json ./
 
-# Install only production dependencies
-RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
-
-# Copy pre-built source code
+# Copy pre-built application and node_modules
 COPY dist/ ./dist/
+COPY node_modules/ ./node_modules/
+
+# Create entrypoint script to handle environment variable substitution
+RUN printf '#!/bin/sh\nif [ -z "$ADO_ORGANIZATION" ]; then\n  echo "ADO_ORGANIZATION environment variable is required"\n  exit 1\nfi\n\nexec node dist/index.js "$ADO_ORGANIZATION" --http\n' > /app/entrypoint.sh && \
+    chmod +x /app/entrypoint.sh
 
 # Change ownership to non-root user
 RUN chown -R mcpserver:nodejs /app
@@ -35,8 +35,5 @@ ENV NODE_ENV=production
 ENV PORT=3000
 ENV MCP_HTTP_MODE=true
 
-# Node.js handles signals properly without additional tools
-ENTRYPOINT ["node", "dist/index.js"]
-
-# Start the HTTP server - organization must be provided via ADO_ORGANIZATION environment variable
-CMD ["${ADO_ORGANIZATION:-contoso}", "--http"]
+# Use the entrypoint script
+ENTRYPOINT ["/app/entrypoint.sh"]
