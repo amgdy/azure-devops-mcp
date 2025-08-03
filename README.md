@@ -15,7 +15,8 @@ This TypeScript project provides both **local** and **remote** MCP server capabi
 2. [🏆 Expectations](#-expectations)
 3. [⚙️ Supported Tools](#️-supported-tools)
 4. [🔌 Installation & Getting Started](#-installation--getting-started)
-5. [📝 Troubleshooting](#-troubleshooting)
+5. [🌐 Cloud Deployment](#-cloud-deployment)
+6. [📝 Troubleshooting](#-troubleshooting)
 6. [🎩 Examples & Best Practices](#-samples--best-practices)
 7. [🙋‍♀️ Frequently Asked Questions](#️-frequently-asked-questions)
 8. [📌 Contributing](#-contributing)
@@ -219,6 +220,67 @@ Open GitHub Copilot Chat and try a prompt like `List ADO projects`.
 > 💥 We strongly recommend creating a `.github\copilot-instructions.md` in your project and copying the contents from this [copilot-instructions.md](./.github/copilot-instructions.md) file. This will enhance your experience using the Azure DevOps MCP Server with GitHub Copilot Chat.
 
 See the [getting started documentation](./docs/GETTINGSTARTED.md) to use our MCP Server with other tools such as Visual Studio 2022, Claude Code, and Cursor.
+
+## 🌐 Cloud Deployment
+
+Deploy the Azure DevOps MCP Server as a remote HTTP service to Azure Container Apps for multi-client access.
+
+### 🚀 Quick Deploy to Azure
+
+Use the automated deployment script:
+
+```bash
+# Clone the repository
+git clone https://github.com/amgdy/azure-devops-mcp.git
+cd azure-devops-mcp
+
+# Deploy to Azure Container Apps
+./scripts/deploy-azure.sh \
+  --resource-group "rg-azuredevops-mcp" \
+  --organization "your-ado-organization" \
+  --subscription "your-subscription-id"
+```
+
+### 🐳 Docker Deployment
+
+The server is also available as a container image:
+
+```bash
+# Pull and run the latest image
+docker run -p 3000:3000 \
+  -e ADO_ORGANIZATION=your-org \
+  -e MCP_HTTP_MODE=true \
+  ghcr.io/amgdy/azure-devops-mcp:latest
+```
+
+### 📋 Infrastructure as Code
+
+Deploy using the provided Bicep templates:
+
+```bash
+# Deploy infrastructure
+az deployment group create \
+  --resource-group "rg-azuredevops-mcp" \
+  --template-file infra/main.bicep \
+  --parameters adoOrganization="your-org"
+```
+
+### 🔗 Remote Client Configuration
+
+Connect to your deployed MCP server:
+
+```json
+{
+  "servers": {
+    "ado-remote": {
+      "type": "sse",
+      "url": "https://your-container-app.azurecontainerapps.io/mcp"
+    }
+  }
+}
+```
+
+For detailed deployment instructions, see the [Deployment Guide](./docs/deployment.md).
 
 ## 📝 Troubleshooting
 
