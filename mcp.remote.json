@@ -1,0 +1,25 @@
+{
+  "inputs": [
+    {
+      "id": "ado_org",
+      "type": "promptString",
+      "description": "Azure DevOps organization name  (e.g. 'contoso')"
+    },
+    {
+      "id": "remote_url",
+      "type": "promptString", 
+      "description": "Remote MCP server URL (e.g. 'http://localhost:3000' or 'https://myapp.azurecontainerapps.io')"
+    }
+  ],
+  "servers": {
+    "ado-local": {
+      "type": "stdio",
+      "command": "mcp-server-azuredevops",
+      "args": ["${input:ado_org}"]
+    },
+    "ado-remote": {
+      "type": "sse",
+      "url": "${input:remote_url}/sse"
+    }
+  }
+}

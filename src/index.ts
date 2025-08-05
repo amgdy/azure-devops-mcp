@@ -31,6 +31,26 @@ const argv = yargs(hideBin(process.argv))
     describe: "Azure tenant ID (optional, required for multi-tenant scenarios)",
     type: "string",
   })
+  .option("remote", {
+    alias: "r",
+    describe: "Run as remote server with HTTP/SSE support instead of local stdio server",
+    type: "boolean",
+    default: false,
+  })
+  .option("port", {
+    alias: "p",
+    describe: "Port for remote server (default: 3000)",
+    type: "number",
+    default: 3000,
+  })
+  .option("allowed-origins", {
+    describe: "Comma-separated list of allowed origins for CORS (default: allow all)",
+    type: "string",
+  })
+  .option("allowed-hosts", {
+    describe: "Comma-separated list of allowed hosts for DNS rebinding protection",
+    type: "string",
+  })
   .help()
   .parseSync();
 
@@ -72,22 +92,57 @@ function getAzureDevOpsClient(userAgentComposer: UserAgentComposer): () => Promi
 }
 
 async function main() {
-  const server = new McpServer({
-    name: "Azure DevOps MCP Server",
-    version: packageVersion,
-  });
+  const isRemoteMode = argv.remote;
 
-  const userAgentComposer = new UserAgentComposer(packageVersion);
-  server.server.oninitialized = () => {
-    userAgentComposer.appendMcpClientInfo(server.server.getClientVersion());
-  };
+  if (isRemoteMode) {
+    // Import remote server module only when needed
+    const { AzureDevOpsRemoteServer } = await import("./remote-server.js");
+    
+    const allowedOrigins = argv["allowed-origins"] 
+      ? argv["allowed-origins"].split(',').map(o => o.trim())
+      : undefined;
+    
+    const allowedHosts = argv["allowed-hosts"]
+      ? argv["allowed-hosts"].split(',').map(h => h.trim())
+      : undefined;
 
-  configurePrompts(server);
+    const remoteServer = new AzureDevOpsRemoteServer({
+      orgName,
+      tenantId,
+      port: argv.port,
+      allowedOrigins,
+      allowedHosts,
+    });
 
-  configureAllTools(server, getAzureDevOpsToken, getAzureDevOpsClient(userAgentComposer), () => userAgentComposer.userAgent);
+    // Handle graceful shutdown
+    const shutdown = async () => {
+      await remoteServer.stop();
+      process.exit(0);
+    };
 
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
+    process.on('SIGINT', shutdown);
+    process.on('SIGTERM', shutdown);
+
+    await remoteServer.start();
+  } else {
+    // Local mode (existing behavior)
+    const server = new McpServer({
+      name: "Azure DevOps MCP Server",
+      version: packageVersion,
+    });
+
+    const userAgentComposer = new UserAgentComposer(packageVersion);
+    server.server.oninitialized = () => {
+      userAgentComposer.appendMcpClientInfo(server.server.getClientVersion());
+    };
+
+    configurePrompts(server);
+
+    configureAllTools(server, getAzureDevOpsToken, getAzureDevOpsClient(userAgentComposer), () => userAgentComposer.userAgent);
+
+    const transport = new StdioServerTransport();
+    await server.connect(transport);
+  }
 }
 
 main().catch((error) => {
