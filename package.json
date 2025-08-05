@@ -29,6 +29,8 @@
     "watch": "tsc --watch",
     "inspect": "ALLOWED_ORIGINS=http://127.0.0.1:6274 npx @modelcontextprotocol/inspector node dist/index.js",
     "start": "node -r tsconfig-paths/register dist/index.js",
+    "start-remote": "node dist/index.js testorg --remote --port 3000",
+    "start-remote-dev": "npm run build && npm run start-remote",
     "eslint": "eslint",
     "eslint-fix": "eslint --fix",
     "format": "prettier --write .",

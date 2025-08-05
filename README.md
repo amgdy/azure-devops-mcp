@@ -5,7 +5,7 @@ Easily install the Azure DevOps MCP Server for VS Code or VS Code Insiders:
 [![Install with NPX in VS Code](https://img.shields.io/badge/VS_Code-Install_AzureDevops_MCP_Server-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=ado&config=%7B%20%22type%22%3A%20%22stdio%22%2C%20%22command%22%3A%20%22npx%22%2C%20%22args%22%3A%20%5B%22-y%22%2C%20%22%40azure-devops%2Fmcp%22%2C%20%22%24%7Binput%3Aado_org%7D%22%5D%7D&inputs=%5B%7B%22id%22%3A%20%22ado_org%22%2C%20%22type%22%3A%20%22promptString%22%2C%20%22description%22%3A%20%22Azure%20DevOps%20organization%20name%20%20%28e.g.%20%27contoso%27%29%22%7D%5D)
 [![Install with NPX in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-Install_AzureDevops_MCP_Server-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=ado&quality=insiders&config=%7B%20%22type%22%3A%20%22stdio%22%2C%20%22command%22%3A%20%22npx%22%2C%20%22args%22%3A%20%5B%22-y%22%2C%20%22%40azure-devops%2Fmcp%22%2C%20%22%24%7Binput%3Aado_org%7D%22%5D%7D&inputs=%5B%7B%22id%22%3A%20%22ado_org%22%2C%20%22type%22%3A%20%22promptString%22%2C%20%22description%22%3A%20%22Azure%20DevOps%20organization%20name%20%20%28e.g.%20%27contoso%27%29%22%7D%5D)
 
-This TypeScript project provides a **local** MCP server for Azure DevOps, enabling you to perform a wide range of Azure DevOps tasks directly from your code editor.
+This TypeScript project provides both **local** and **remote** MCP servers for Azure DevOps, enabling you to perform a wide range of Azure DevOps tasks directly from your code editor or via HTTP/SSE connections.
 
 > 🚨 **Public Preview:** This project is in public preview. Tools and features may change before general availability.
 
@@ -22,7 +22,12 @@ This TypeScript project provides a **local** MCP server for Azure DevOps, enabli
 
 ## 📺 Overview
 
-The Azure DevOps MCP Server brings Azure DevOps context to your agents. Try prompts like:
+The Azure DevOps MCP Server brings Azure DevOps context to your agents in two modes:
+
+- **Local Mode**: Traditional stdio-based server for local development and VS Code integration
+- **Remote Mode**: HTTP/SSE-based server for hosting in cloud environments like Azure Container Apps
+
+Try prompts like:
 
 - "List my ADO projects"
 - "List ADO Builds for 'Contoso'"
@@ -141,7 +146,15 @@ Interact with these Azure DevOps services:
 
 ## 🔌 Installation & Getting Started
 
-For the best experience, use Visual Studio Code and GitHub Copilot. See the [getting started documentation](./docs/GETTINGSTARTED.md) to use our MCP Server with other tools such as Visual Studio 2022, Claude Code, and Cursor.
+The Azure DevOps MCP Server can run in two modes:
+
+### 🏠 Local Mode (Default)
+
+For the best experience with local development, use Visual Studio Code and GitHub Copilot. See the [getting started documentation](./docs/GETTINGSTARTED.md) to use our MCP Server with other tools such as Visual Studio 2022, Claude Code, and Cursor.
+
+### ☁️ Remote Mode (New!)
+
+Host the MCP server remotely for cloud-based access, perfect for Azure Container Apps or other containerized environments.
 
 ### Prerequisites
 
@@ -158,7 +171,7 @@ Ensure you are logged in to Azure DevOps via the Azure CLI:
 az login
 ```
 
-### Installation
+### Local Installation
 
 #### ✨ One-Click Install
 
@@ -211,6 +224,139 @@ Open GitHub Copilot Chat and try a prompt like `List ADO projects`.
 > 💥 We strongly recommend creating a `.github\copilot-instructions.md` in your project and copying the contents from this [copilot-instructions.md](./.github/copilot-instructions.md) file. This will enhance your experience using the Azure DevOps MCP Server with GitHub Copilot Chat.
 
 See the [getting started documentation](./docs/GETTINGSTARTED.md) to use our MCP Server with other tools such as Visual Studio 2022, Claude Code, and Cursor.
+
+---
+
+## ☁️ Remote Mode Setup
+
+The Azure DevOps MCP Server can be hosted remotely to support cloud deployments and centralized access.
+
+### 🚀 Quick Start (Remote Mode)
+
+1. **Install the package:**
+   ```bash
+   npm install -g @azure-devops/mcp
+   ```
+
+2. **Run in remote mode:**
+   ```bash
+   mcp-server-azuredevops myorg --remote --port 3000
+   ```
+
+3. **Test the server:**
+   ```bash
+   curl http://localhost:3000/health
+   ```
+
+### 🐳 Docker Deployment
+
+1. **Build the Docker image:**
+   ```bash
+   git clone https://github.com/microsoft/azure-devops-mcp
+   cd azure-devops-mcp
+   npm run build
+   docker build -t azure-devops-mcp .
+   ```
+
+2. **Run the container:**
+   ```bash
+   docker run -d \
+     -p 3000:3000 \
+     -e AZURE_DEVOPS_ORG=myorg \
+     -e AZURE_TOKEN_CREDENTIALS=dev \
+     azure-devops-mcp
+   ```
+
+### ☁️ Azure Container Apps Deployment
+
+1. **Create a Container App:**
+   ```bash
+   az containerapp create \
+     --name azure-devops-mcp \
+     --resource-group myResourceGroup \
+     --environment myEnvironment \
+     --image azure-devops-mcp:latest \
+     --target-port 3000 \
+     --ingress external \
+     --env-vars AZURE_DEVOPS_ORG=myorg
+   ```
+
+2. **Configure authentication** (see [Azure authentication docs](https://learn.microsoft.com/en-us/azure/container-apps/authentication))
+
+### 🔧 Remote Mode Configuration
+
+Available command-line options for remote mode:
+
+```bash
+mcp-server-azuredevops <organization> [options]
+
+Options:
+  -r, --remote           Run as remote server with HTTP/SSE support
+  -p, --port             Port for remote server (default: 3000)
+  --allowed-origins      Comma-separated list of allowed origins for CORS
+  --allowed-hosts        Comma-separated list of allowed hosts for DNS rebinding protection
+  -t, --tenant           Azure tenant ID (optional, for multi-tenant scenarios)
+```
+
+Example with CORS configuration:
+```bash
+mcp-server-azuredevops myorg --remote --port 3000 \
+  --allowed-origins "https://myapp.com,https://localhost:3000" \
+  --allowed-hosts "myapp.com,localhost"
+```
+
+### 📡 Transport Protocols
+
+The remote server supports both current and legacy MCP transport protocols:
+
+#### 1. Streamable HTTP (Recommended - Protocol 2025-03-26)
+- **Endpoint:** `/mcp`
+- **Methods:** GET, POST, DELETE
+- **Features:** Session resumability, efficient streaming
+
+#### 2. HTTP + SSE (Legacy - Protocol 2024-11-05)
+- **Endpoints:** `/sse` (GET) and `/messages` (POST)
+- **Features:** Backward compatibility with older clients
+
+### 🌐 Client Configuration
+
+#### For VS Code with Remote Server
+
+Create `.vscode/mcp.json`:
+```json
+{
+  "inputs": [
+    {
+      "id": "remote_url",
+      "type": "promptString", 
+      "description": "Remote MCP server URL (e.g. 'https://myapp.azurecontainerapps.io')"
+    }
+  ],
+  "servers": {
+    "ado-remote": {
+      "type": "sse",
+      "url": "${input:remote_url}/sse"
+    }
+  }
+}
+```
+
+#### For Other MCP Clients
+
+Connect to:
+- **SSE URL:** `https://your-server.com/sse`
+- **Messages URL:** `https://your-server.com/messages`
+- **Health Check:** `https://your-server.com/health`
+
+### 🔒 Security Considerations
+
+1. **Authentication:** The server inherits Azure authentication from the container environment
+2. **CORS:** Configure `--allowed-origins` for browser-based clients
+3. **DNS Rebinding Protection:** Use `--allowed-hosts` for additional security
+4. **HTTPS:** Always use HTTPS in production deployments
+5. **Environment Variables:** Store sensitive configuration in container environment variables
+
+---
 
 ## 📝 Troubleshooting
 
