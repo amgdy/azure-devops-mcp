@@ -282,6 +282,10 @@ mcp-server-azuredevops your-org-name --remote
 
 For complete deployment instructions, Docker examples, Kubernetes manifests, and configuration details, see the [Remote Deployment Guide](./docs/REMOTE-DEPLOYMENT.md).
 
+### Remote MCP Client Configuration
+
+The repository includes pre-configured remote server definitions in `mcp.json` for easy setup with VS Code and other MCP clients. For detailed setup instructions and troubleshooting, see the [Remote MCP Setup Guide](./docs/REMOTE-MCP-SETUP.md).
+
 ## 🌏 Using Domains
 
 Azure DevOps exposes a large surface area. As a result, our Azure DevOps MCP Server includes many tools. To keep the toolset manageable, avoid confusing the model, and respect client limits on loaded tools, use Domains to load only the areas you need. Domains are named groups of related tools (for example: core, work, work-items, repositories, wiki). Add the `-d` argument and the domain names to the server args in your `mcp.json` to list the domains to enable.

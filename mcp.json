@@ -25,11 +25,15 @@
     },
     "ado-remote": {
       "type": "sse",
+      "command": "mcp-server-azuredevops",
+      "args": ["${input:ado_org}", "--remote", "--port", "${input:server_port}", "--pat", "${input:ado_pat}"],
       "url": "http://localhost:${input:server_port}/sse",
       "description": "Remote Azure DevOps MCP Server using HTTP+SSE transport"
     },
     "ado-remote-default": {
       "type": "sse",
+      "command": "mcp-server-azuredevops",
+      "args": ["${input:ado_org}", "--remote", "--port", "3000", "--pat", "${input:ado_pat}"],
       "url": "http://localhost:3000/sse",
       "description": "Remote Azure DevOps MCP Server on default port 3000"
     }
