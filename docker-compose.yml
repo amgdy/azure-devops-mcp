@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  ado-mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ado-mcp-server
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - ADO_ORG=${ADO_ORG:-contoso}
+      - ADO_PAT=${ADO_PAT}
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - ado-mcp-network
+
+  # Optional: reverse proxy for HTTPS and load balancing
+  nginx:
+    image: nginx:alpine
+    container_name: ado-mcp-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - ado-mcp-server
+    networks:
+      - ado-mcp-network
+    profiles:
+      - with-proxy
+
+networks:
+  ado-mcp-network:
+    driver: bridge

@@ -29,12 +29,18 @@
     "watch": "tsc --watch",
     "inspect": "ALLOWED_ORIGINS=http://127.0.0.1:6274 npx @modelcontextprotocol/inspector node dist/index.js",
     "start": "node -r tsconfig-paths/register dist/index.js",
+    "start-remote": "node -r tsconfig-paths/register dist/index.js --remote",
     "eslint": "eslint",
     "eslint-fix": "eslint --fix",
     "format": "prettier --write .",
     "format-check": "prettier --check .",
     "clean": "shx rm -rf dist",
-    "test": "jest"
+    "test": "jest",
+    "docker:build": "docker build -t ado-mcp-server .",
+    "docker:run": "./docker-run.sh",
+    "docker:compose:up": "docker-compose up --build",
+    "docker:compose:down": "docker-compose down",
+    "docker:health": "curl -f http://localhost:3000/health || exit 1"
   },
   "dependencies": {
     "@azure/identity": "^4.10.0",
@@ -42,12 +48,14 @@
     "azure-devops-extension-api": "^4.252.0",
     "azure-devops-extension-sdk": "^4.0.2",
     "azure-devops-node-api": "^15.1.0",
+    "express": "^5.1.0",
     "yargs": "^18.0.0",
     "zod": "^3.25.63",
     "zod-to-json-schema": "^3.24.5"
   },
   "devDependencies": {
     "@modelcontextprotocol/inspector": "^0.16.1",
+    "@types/express": "^5.0.3",
     "@types/jest": "^30.0.0",
     "@types/node": "^22",
     "eslint-config-prettier": "10.1.8",
