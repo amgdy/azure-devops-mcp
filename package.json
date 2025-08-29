@@ -35,7 +35,12 @@
     "format": "prettier --write .",
     "format-check": "prettier --check .",
     "clean": "shx rm -rf dist",
-    "test": "jest"
+    "test": "jest",
+    "docker:build": "docker build -t ado-mcp-server .",
+    "docker:run": "./docker-run.sh",
+    "docker:compose:up": "docker-compose up --build",
+    "docker:compose:down": "docker-compose down",
+    "docker:health": "curl -f http://localhost:3000/health || exit 1"
   },
   "dependencies": {
     "@azure/identity": "^4.10.0",

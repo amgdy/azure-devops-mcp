@@ -1,0 +1,181 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Local MCP Server",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/dist/index.js",
+      "args": ["contoso"],
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "sourceMaps": true,
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "preLaunchTask": "npm: build",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Debug Local MCP Server (Custom Org)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/dist/index.js",
+      "args": ["${input:orgName}"],
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "sourceMaps": true,
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "preLaunchTask": "npm: build",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Debug Remote MCP Server",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/dist/index.js",
+      "args": ["contoso", "--remote", "--port", "3001"],
+      "env": {
+        "NODE_ENV": "development",
+        "ADO_PAT": "${input:adoPat}"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "sourceMaps": true,
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "preLaunchTask": "npm: build",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Debug Remote MCP Server (Custom Config)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/dist/index.js",
+      "args": ["${input:orgName}", "--remote", "--port", "${input:serverPort}"],
+      "env": {
+        "NODE_ENV": "development",
+        "ADO_PAT": "${input:adoPat}"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "sourceMaps": true,
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "preLaunchTask": "npm: build",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Debug with Specific Domains",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/dist/index.js",
+      "args": ["${input:orgName}", "--domains", "${input:domains}"],
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "sourceMaps": true,
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "preLaunchTask": "npm: build",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Debug with Tenant ID",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/dist/index.js",
+      "args": ["${input:orgName}", "--tenant", "${input:tenantId}"],
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "sourceMaps": true,
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "preLaunchTask": "npm: build",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Debug Tests",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": ["--runInBand", "--no-cache"],
+      "env": {
+        "NODE_ENV": "test"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Debug Specific Test",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": ["--runInBand", "--no-cache", "${input:testPattern}"],
+      "env": {
+        "NODE_ENV": "test"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Run MCP Inspector (Local)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/tsx",
+      "args": ["${workspaceFolder}/node_modules/@modelcontextprotocol/inspector/dist/index.js", "node", "${workspaceFolder}/dist/index.js", "contoso"],
+      "env": {
+        "NODE_ENV": "development",
+        "ALLOWED_ORIGINS": "http://127.0.0.1:6274"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "preLaunchTask": "npm: build",
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ],
+  "inputs": [
+    {
+      "id": "orgName",
+      "description": "Azure DevOps organization name",
+      "default": "contoso",
+      "type": "promptString"
+    },
+    {
+      "id": "adoPat",
+      "description": "Azure DevOps Personal Access Token",
+      "type": "promptString"
+    },
+    {
+      "id": "serverPort",
+      "description": "Remote server port",
+      "default": "3000",
+      "type": "promptString"
+    },
+    {
+      "id": "tenantId",
+      "description": "Azure tenant ID",
+      "type": "promptString"
+    },
+    {
+      "id": "domains",
+      "description": "Domains to enable (e.g., 'repositories builds work' or 'all')",
+      "default": "all",
+      "type": "promptString"
+    },
+    {
+      "id": "testPattern",
+      "description": "Test file pattern or specific test name",
+      "type": "promptString"
+    }
+  ]
+}
