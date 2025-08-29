@@ -5,7 +5,7 @@ Easily install the Azure DevOps MCP Server for VS Code or VS Code Insiders:
 [![Install with NPX in VS Code](https://img.shields.io/badge/VS_Code-Install_AzureDevops_MCP_Server-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=ado&config=%7B%20%22type%22%3A%20%22stdio%22%2C%20%22command%22%3A%20%22npx%22%2C%20%22args%22%3A%20%5B%22-y%22%2C%20%22%40azure-devops%2Fmcp%22%2C%20%22%24%7Binput%3Aado_org%7D%22%5D%7D&inputs=%5B%7B%22id%22%3A%20%22ado_org%22%2C%20%22type%22%3A%20%22promptString%22%2C%20%22description%22%3A%20%22Azure%20DevOps%20organization%20name%20%20%28e.g.%20%27contoso%27%29%22%7D%5D)
 [![Install with NPX in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-Install_AzureDevops_MCP_Server-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=ado&quality=insiders&config=%7B%20%22type%22%3A%20%22stdio%22%2C%20%22command%22%3A%20%22npx%22%2C%20%22args%22%3A%20%5B%22-y%22%2C%20%22%40azure-devops%2Fmcp%22%2C%20%22%24%7Binput%3Aado_org%7D%22%5D%7D&inputs=%5B%7B%22id%22%3A%20%22ado_org%22%2C%20%22type%22%3A%20%22promptString%22%2C%20%22description%22%3A%20%22Azure%20DevOps%20organization%20name%20%20%28e.g.%20%27contoso%27%29%22%7D%5D)
 
-This TypeScript project provides a **local** MCP server for Azure DevOps, enabling you to perform a wide range of Azure DevOps tasks directly from your code editor.
+This TypeScript project provides a **local** MCP server for Azure DevOps, enabling you to perform a wide range of Azure DevOps tasks directly from your code editor. It also supports **remote deployment** for centralized scenarios.
 
 > 🚨 **Public Preview:** This project is in public preview. Tools and features may change before general availability.
 
@@ -15,7 +15,8 @@ This TypeScript project provides a **local** MCP server for Azure DevOps, enabli
 2. [🏆 Expectations](#-expectations)
 3. [⚙️ Supported Tools](#️-supported-tools)
 4. [🔌 Installation & Getting Started](#-installation--getting-started)
-5. [🌏 Using Domains](#-using-domains)
+5. [🌐 Remote Deployment](#-remote-deployment)
+6. [🌏 Using Domains](#-using-domains)
 6. [📝 Troubleshooting](#-troubleshooting)
 7. [🎩 Examples & Best Practices](#-examples--best-practices)
 8. [🙋‍♀️ Frequently Asked Questions](#️-frequently-asked-questions)
@@ -244,6 +245,42 @@ Open GitHub Copilot Chat and try a prompt like `List ADO projects`.
 > To start, just include "`This project uses Azure DevOps. Always check to see if the Azure DevOps MCP server has a tool relevant to the user's request`" in your copilot instructions file.
 
 See the [getting started documentation](./docs/GETTINGSTARTED.md) to use our MCP Server with other tools such as Visual Studio 2022, Claude Code, and Cursor.
+
+## 🌐 Remote Deployment
+
+The Azure DevOps MCP Server supports remote deployment using HTTP+SSE transport, ideal for centralized deployments and cloud environments.
+
+### Quick Start (Remote Mode)
+
+```bash
+# Install globally
+npm install -g @azure-devops/mcp
+
+# Set your Personal Access Token
+export ADO_PAT="your-personal-access-token"
+
+# Start remote server
+mcp-server-azuredevops your-org-name --remote
+
+# Server starts on http://localhost:3000
+```
+
+### Remote Mode Features
+
+- **HTTP+SSE Transport**: Network-based communication for distributed deployments
+- **Personal Access Token Authentication**: Simple token-based authentication for Azure DevOps
+- **Docker & Kubernetes Ready**: Easy containerization and orchestration
+- **Multi-Client Support**: Serve multiple MCP clients from a single server instance
+- **Health Monitoring**: Built-in health check endpoint for monitoring
+
+### Use Cases
+
+- **Centralized Deployments**: Run one server instance for multiple clients
+- **Cloud Deployments**: Deploy to Docker, Kubernetes, Azure Container Instances, AWS ECS, etc.
+- **CI/CD Integration**: Embed in automation pipelines and build systems
+- **Team Environments**: Share a configured server across development teams
+
+For complete deployment instructions, Docker examples, Kubernetes manifests, and configuration details, see the [Remote Deployment Guide](./docs/REMOTE-DEPLOYMENT.md).
 
 ## 🌏 Using Domains
 
